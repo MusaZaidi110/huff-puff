@@ -1,0 +1,11 @@
+# Ignore dependencies
+node_modules/
+
+# Ignore environment variables
+.env
+
+# Optional: OS or editor-specific files
+.DS_Store
+*.log
+.vscode/
+src/Utils/Configs/huffandpuffburger-firebase-adminsdk-fbsvc-7e760bb618.json
