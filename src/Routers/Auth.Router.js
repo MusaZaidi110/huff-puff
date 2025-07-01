@@ -4,10 +4,11 @@ const router = express.Router();
 // Implementation 
 const {createCustomerAuth} = require("../Functionality/Authentication/CreateUserAuth");
 const {loginCustomerAuth} = require("../Functionality/Authentication/LoginUserAuth");
+const {forgotPassword} = require("../Functionality/Authentication/ForgetPassword");
 
 // Validation
 const Joi = require("joi");
-const validateRequest = require("../Middlewares/ValidateRequest");
+const {validateRequest} = require("../Middlewares/ValidateRequest");
 
 const registerSchema = Joi.object({
   email: Joi.string().email().required(),
@@ -19,7 +20,7 @@ router.post("/register", validateRequest(registerSchema), createCustomerAuth);
 
 router.post("/login", validateRequest(registerSchema), loginCustomerAuth);
 
-router.post("/forget-password", );
+router.post("/forget-password", forgotPassword);
 module.exports = router;
 
 /**

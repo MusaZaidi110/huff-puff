@@ -1,125 +1,118 @@
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection:', reason);
+});
+
+
 const express = require("express");
-const dotenv = require("dotenv").config();
-// For security Imports
+require("dotenv").config();
+
+// Security Imports
 const helmet = require("helmet");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
+
 // Swagger Imports
 const setupSwagger = require("./src/SwaggerConfig.js");
-// Clustering Imports
-// const cluster = require("cluster");
-// const os = require("os");
+
 // RealTime Sockets Imports
 const http = require("http");
 const setupSocket = require("./src/Sockets.js");
+
 // Logging Imports
 const morgan = require("morgan");
 const Logger = require("./src/Utils/Logger.js");
-// CronJobs Import
-// const { startAllCrons } = require("./src/CronJobs/StartingCronJobs.js");
+
 // Routes Import
 const routes = require("./src/Routes.js");
 
-// const numCPUs = os.cpus().length;
+// Initialize Express
+const app = express();
+const port = process.env.PORT || 8000;
 
-// try {
-//   if (cluster.isPrimary) {
-//     // startAllCrons();
+// Rate Limiter
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    status: 429,
+    message: "Too many requests, please try again later.",
+  },
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json(options.message);
+  },
+});
 
-//     for (let i = 0; i < numCPUs; i++) {
-//       cluster.fork();
-//     }
+// Middleware
+app.use(helmet());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+app.use(limiter);
+app.use(express.json({ limit: "50kb" }));
+app.use(express.urlencoded({ extended: false }));
+app.use(morgan("combined", { stream: Logger.stream }));
 
-//     cluster.on("exit", (worker, code, signal) => {
-//       console.log(
-//         `Worker ${worker.process.pid} died with code ${code} and signal ${signal}`
-//       );
-//       setTimeout(() => cluster.fork(), 1000);
-//     });
-//   } else {
-    const app = express();
-    const port = process.env.PORT || 8000;
+// Routes
+app.use("/", routes);
 
-    const limiter = rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 100,
-      standardHeaders: true,
-      legacyHeaders: false,
-      message: {
-        status: 429,
-        message: "Too many requests, please try again later.",
-      },
-      handler: (req, res, next, options) => {
-        res.status(options.statusCode).json(options.message);
-      },
-    });
+// Swagger
+setupSwagger(app);
 
-    app.use(helmet());
-    app.use(
-      cors({
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-      })
-    );
-    app.use(limiter);
-    app.use(express.json({ limit: "50kb" }));
-    app.use(express.urlencoded({ extended: false }));
+// Health Check
+app.get("/", (_, res) => res.send("API Running ✅"));
 
-    app.use(morgan("combined", { stream: Logger.stream }));
-    
-    app.use("/", routes);
+// 404 Handler
+app.use((req, res, next) => {
+  Logger.warn("Route not found", {
+    path: req.path,
+    method: req.method,
+    ip: req.ip,
+    headers: {
+      referer: req.headers.referer,
+      "user-agent": req.headers["user-agent"],
+    },
+  });
 
-    // Setup Swagger
-    setupSwagger(app);
+  res.status(404).json({
+    success: false,
+    error: "ROUTE_NOT_FOUND",
+    message: `The requested resource ${req.path} was not found`,
+    path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+  });
+});
 
-    app.get("/", (_, res) => res.send("API Running ✅"));
+// Error Handler
+app.use((err, req, res, next) => {
+  Logger.error("Route error", {
+    error: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
+  });
+  res.status(500).send("Server Error");
+});
 
-    app.use((req, res, next) => {
-      Logger.warn("Route not found", {
-        path: req.path,
-        method: req.method,
-        ip: req.ip,
-        headers: {
-          referer: req.headers.referer,
-          "user-agent": req.headers["user-agent"],
-        },
-      });
+// Socket.IO and Server
+const server = http.createServer(app);
+setupSocket(server);
 
-      res.status(404).json({
-        success: false,
-        error: "ROUTE_NOT_FOUND",
-        message: `The requested resource ${req.path} was not found`,
-        path: req.path,
-        method: req.method,
-        timestamp: new Date().toISOString(),
-      });
-    });
+server.listen(port, () => {
+  console.log(`🚀 Server running on port ${port} (PID: ${process.pid})`);
+});
 
-    app.use((err, req, res, next) => {
-      Logger.error("Route error", {
-        error: err.message,
-        stack: err.stack,
-        path: req.path,
-        method: req.method,
-      });
-      res.status(500).send("Server Error");
-    });
-
-    // --- Socket.IO Integration ---
-    const server = http.createServer(app);
-    setupSocket(server);
-
-    server.listen(port, () => {
-      console.log(`Worker ${process.pid} running on port ${port}`);
-    });
-
-    process.on("SIGTERM", () => {
-      server.close(() => {
-        process.exit(0);
-      });
-    });
-//   }
-// } catch (error) {
-//   console.log("The Error Occured", error);
-// }
+// Graceful Shutdown
+process.on("SIGTERM", () => {
+  server.close(() => {
+    process.exit(0);
+  });
+});
