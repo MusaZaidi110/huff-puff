@@ -9,7 +9,7 @@ const Logger = require("../../Utils/Logger");
 const {
   OTPTemplate,
 } = require("../../EmailTemplates/OTP-Email-Handler/otp-email");
-const sendEmail = require("../../Utils/SendEmail");
+const {sendEmail} = require("../../Utils/SendEmail");
 
 const createCustomerAuth = async (req, res) => {
   Logger.http(`Incoming Auth Request: ${req.method} ${req.url}`);
@@ -58,7 +58,7 @@ const createCustomerAuth = async (req, res) => {
     // Generate and save OTP
     const otpCode = generateOTP();
     await OTP.create(
-      { OTP: otpCode, user_id: createdUser.id },
+      { otp: otpCode, user_id: createdUser.id },
       { transaction: t }
     );
 

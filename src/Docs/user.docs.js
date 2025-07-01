@@ -1,5 +1,13 @@
 /**
  * @swagger
+ * tags:
+ *   - name: Authentication
+ *     description: User registration, login, and password management
+ */
+
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     User:
@@ -98,20 +106,16 @@
 
 /**
  * @swagger
- * tags:
- *   - name: Authentication
- *     description: User registration and authentication endpoints
- *
- * /auth/register:
+ * /register:
  *   post:
- *     tags:
- *       - Authentication
- *     summary: Register a new customer user with email and password
+ *     summary: Register a new customer user
+ *     tags: [Authentication]
  *     description: >
- *       Creates a new user with role "customer".<br/>
- *       Validates input, hashes password, saves user, generates OTP for verification, and sends OTP email.<br/>
- *       User is created with `is_active` set to false until verification is completed.<br/>
- *       Uses a transaction to ensure database consistency.<br/>
+ *       Creates a new customer account with email and password, generates and stores OTP, and sends OTP to the user's email for verification.
+ *       - Validates email and password format.
+ *       - Hashes password before storing.
+ *       - Creates user with `is_active: false`.
+ *       - Sends OTP email after transaction completion.
  *     requestBody:
  *       required: true
  *       content:
@@ -125,15 +129,16 @@
  *               email:
  *                 type: string
  *                 format: email
- *                 description: User's unique email address
+ *                 description: Valid email address.
  *                 example: user@example.com
  *               password:
  *                 type: string
- *                 description: Password with minimum 6 characters
- *                 example: mySecurePass123
+ *                 format: password
+ *                 description: Password (minimum 6 characters).
+ *                 example: securePass123
  *     responses:
  *       201:
- *         description: User registered successfully and OTP sent for verification
+ *         description: User registered successfully; OTP sent for verification.
  *         content:
  *           application/json:
  *             schema:
@@ -146,19 +151,9 @@
  *                   type: string
  *                   example: User registered successfully
  *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 123
- *                     email:
- *                       type: string
- *                       example: user@example.com
- *                     role:
- *                       type: string
- *                       example: customer
+ *                   $ref: '#/components/schemas/User'
  *       400:
- *         description: Bad request due to validation failure (missing or invalid fields)
+ *         description: Validation error.
  *         content:
  *           application/json:
  *             schema:
@@ -171,7 +166,7 @@
  *                   type: string
  *                   example: Email and password are required fields
  *       409:
- *         description: Conflict - User with this email already exists
+ *         description: User with this email already exists.
  *         content:
  *           application/json:
  *             schema:
@@ -184,7 +179,180 @@
  *                   type: string
  *                   example: User with this email already exists
  *       500:
- *         description: Internal server error
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login customer user
+ *     tags: [Authentication]
+ *     description: >
+ *       Logs in a customer user with email and password:
+ *       - Validates email and password.
+ *       - Checks if the user exists.
+ *       - Verifies password hash.
+ *       - Returns authentication token or JWT on success.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's registered email address.
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 description: User's password.
+ *                 example: securePass123
+ *     responses:
+ *       200:
+ *         description: Login successful.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 token:
+ *                   type: string
+ *                   description: JWT authentication token.
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Validation error or missing fields.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Email and password are required fields
+ *       401:
+ *         description: Invalid email or password.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Invalid email or password
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+
+/**
+ * @swagger
+ * /forget-password:
+ *   post:
+ *     summary: Request password reset OTP
+ *     tags: [Authentication]
+ *     description: >
+ *       Sends a password reset OTP to the user's email for resetting the password.
+ *       - Validates email format.
+ *       - Checks if the user exists.
+ *       - Generates and stores OTP.
+ *       - Sends OTP via email.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Registered email address for the user.
+ *                 example: user@example.com
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: OTP sent to email for password reset
+ *       400:
+ *         description: Validation error or missing fields.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Email is required
+ *       404:
+ *         description: User with the provided email does not exist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: User with this email does not exist
+ *       500:
+ *         description: Internal server error.
  *         content:
  *           application/json:
  *             schema:

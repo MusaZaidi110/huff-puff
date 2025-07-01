@@ -9,11 +9,11 @@ const OTP = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    OTP: {
+    otp: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    OTP_type: {
+    otp_type: {
       type: DataTypes.ENUM("email_verification", "password_reset"),
       allowNull: false,
       defaultValue: "email_verification",
