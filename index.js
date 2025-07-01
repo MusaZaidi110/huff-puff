@@ -7,8 +7,8 @@ const rateLimit = require("express-rate-limit");
 // Swagger Imports
 const setupSwagger = require("./src/SwaggerConfig.js");
 // Clustering Imports
-const cluster = require("cluster");
-const os = require("os");
+// const cluster = require("cluster");
+// const os = require("os");
 // RealTime Sockets Imports
 const http = require("http");
 const setupSocket = require("./src/Sockets.js");
@@ -20,23 +20,23 @@ const Logger = require("./src/Utils/Logger.js");
 // Routes Import
 const routes = require("./src/Routes.js");
 
-const numCPUs = os.cpus().length;
+// const numCPUs = os.cpus().length;
 
-try {
-  if (cluster.isPrimary) {
-    // startAllCrons();
+// try {
+//   if (cluster.isPrimary) {
+//     // startAllCrons();
 
-    for (let i = 0; i < numCPUs; i++) {
-      cluster.fork();
-    }
+//     for (let i = 0; i < numCPUs; i++) {
+//       cluster.fork();
+//     }
 
-    cluster.on("exit", (worker, code, signal) => {
-      console.log(
-        `Worker ${worker.process.pid} died with code ${code} and signal ${signal}`
-      );
-      setTimeout(() => cluster.fork(), 1000);
-    });
-  } else {
+//     cluster.on("exit", (worker, code, signal) => {
+//       console.log(
+//         `Worker ${worker.process.pid} died with code ${code} and signal ${signal}`
+//       );
+//       setTimeout(() => cluster.fork(), 1000);
+//     });
+//   } else {
     const app = express();
     const port = process.env.PORT || 8000;
 
@@ -119,7 +119,7 @@ try {
         process.exit(0);
       });
     });
-  }
-} catch (error) {
-  console.log("The Error Occured", error);
-}
+//   }
+// } catch (error) {
+//   console.log("The Error Occured", error);
+// }
