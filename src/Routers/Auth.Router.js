@@ -14,7 +14,7 @@ const {
 const {
   forgotPassword,
 } = require("../Functionality/Authentication/ForgetPassword");
-
+const {confirmPasswordChange} = require("../Functionality/Authentication/ConfirmForgotPassword")
 // Validation
 const Joi = require("joi");
 const { validateRequest } = require("../Middlewares/ValidateRequest");
@@ -28,9 +28,13 @@ const confirmRegistrationSchema = Joi.object({
   otp: Joi.number().integer().min(1000).max(9999).required(), // 4-digit integer OTP
 });
 
+const forgotPasswordSchema = Joi.object({
+    email: Joi.string().email().required(),
+})
 
 
 router.post("/register", validateRequest(registerSchema), createCustomerAuth);
+
 
 router.post(
   "/confirm-registration/:userId",
@@ -39,8 +43,20 @@ router.post(
 );
 
 
+
+
 router.post("/login", validateRequest(registerSchema), loginCustomerAuth);
 
-router.post("/forget-password", forgotPassword);
+
+router.post("/forget-password", validateRequest(forgotPasswordSchema) ,forgotPassword);
+
+
+router.post(
+  "/confirm-change-password/:userId",
+  validateRequest(confirmRegistrationSchema),
+  confirmPasswordChange
+);
+
+
 
 module.exports = router;
