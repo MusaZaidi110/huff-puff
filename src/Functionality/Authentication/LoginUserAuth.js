@@ -56,7 +56,7 @@ const loginCustomerAuth = async (req, res) => {
       role: user.role,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    const token = jwt.sign(payload, process.env.JWT, {
       expiresIn: process.env.JWT_EXPIRES_IN || "7d",
     });
 

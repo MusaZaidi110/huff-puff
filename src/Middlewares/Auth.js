@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { Logger } = require("../Utils/Logger.js"); // Assuming you have a Logger
 
-const JWT_SECRET = process.env.JWT_SECRET; // Changed to standard naming convention
+const JWT = process.env.JWT; // Changed to standard naming convention
 
 /**
  * Extracts JWT token from request headers
@@ -39,7 +39,7 @@ const authenticate = ({ requireAdmin = false } = {}) => {
       }
 
       // Verify token
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, JWT);
       
       // Attach user to request
       req.user = decoded;

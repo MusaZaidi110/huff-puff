@@ -28,6 +28,8 @@ const confirmRegistrationSchema = Joi.object({
   otp: Joi.number().integer().min(1000).max(9999).required(), // 4-digit integer OTP
 });
 
+
+
 router.post("/register", validateRequest(registerSchema), createCustomerAuth);
 
 router.post(
