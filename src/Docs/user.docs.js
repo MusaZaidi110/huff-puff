@@ -196,6 +196,95 @@
 
 /**
  * @swagger
+ * /confirm-registration/{userId}:
+ *   post:
+ *     summary: Confirm user registration via OTP
+ *     tags: [Authentication]
+ *     description: >
+ *       Confirms a newly registered user by validating the OTP sent to their email.
+ *       Upon successful validation:
+ *       - Marks the OTP as used
+ *       - Updates the user's `is_active` to true
+ *       - Sets `email_verified_at` timestamp
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: UUID of the user to confirm registration for
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - otp
+ *             properties:
+ *               otp:
+ *                 type: string
+ *                 description: OTP code sent to the user's email
+ *                 example: "1234"
+ *     responses:
+ *       200:
+ *         description: Registration confirmed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Registration confirmed successfully.
+ *       400:
+ *         description: Validation error or invalid/expired OTP
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: User ID and OTP are required.
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: User not found.
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error.
+ */
+
+
+/**
+ * @swagger
  * /login:
  *   post:
  *     summary: Login customer user
