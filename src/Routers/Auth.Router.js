@@ -43,8 +43,6 @@ router.post(
 );
 
 
-
-
 router.post("/login", validateRequest(registerSchema), loginCustomerAuth);
 
 

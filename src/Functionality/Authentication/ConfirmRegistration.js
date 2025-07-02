@@ -13,10 +13,6 @@ const confirmRegistration = async (req, res) => {
     const { otp } = req.body;
     const { userId } = req.params;
 
-    if (!userId || !otp) {
-      return res.status(400).json({ success: false, message: "User ID and OTP are required." });
-    }
-
     const user = await User.findOne({ where: { id: userId } });
     if (!user) {
       await t.rollback();

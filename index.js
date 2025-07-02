@@ -69,38 +69,6 @@ setupSwagger(app);
 // Health Check
 app.get("/", (_, res) => res.send("API Running ✅"));
 
-// 404 Handler
-app.use((req, res, next) => {
-  Logger.warn("Route not found", {
-    path: req.path,
-    method: req.method,
-    ip: req.ip,
-    headers: {
-      referer: req.headers.referer,
-      "user-agent": req.headers["user-agent"],
-    },
-  });
-
-  res.status(404).json({
-    success: false,
-    error: "ROUTE_NOT_FOUND",
-    message: `The requested resource ${req.path} was not found`,
-    path: req.path,
-    method: req.method,
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// Error Handler
-app.use((err, req, res, next) => {
-  Logger.error("Route error", {
-    error: err.message,
-    stack: err.stack,
-    path: req.path,
-    method: req.method,
-  });
-  res.status(500).send("Server Error");
-});
 
 // Socket.IO and Server
 const server = http.createServer(app);

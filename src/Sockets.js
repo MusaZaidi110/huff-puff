@@ -30,72 +30,6 @@ function setupSocket(server) {
       }
     });
 
-    // Customer sends message to admin
-    socket.on("chat:customerToAdmin", async ({ senderId, message }) => {
-      if (!message || !senderId) return;
-
-      // Loop through all connected admins and send the message
-      for (const [adminId, adminSocketId] of connectedAdmins.entries()) {
-        // Send message to admin via socket
-        io.to(adminSocketId).emit("chat:receiveFromCustomer", {
-          senderId,
-          message,
-        });
-
-        // 💾 Store message in DB
-        try {
-          await HelpCenterMessage.create({
-            sender_id: senderId,
-            recipient_id: adminId,
-            message,
-            sender_role: "customer",
-          });
-        } catch (err) {
-          Logger.error(
-            `Failed to save message from customer ${senderId}:`,
-            err
-          );
-        }
-        Logger.info(
-          `Customer ${senderId} sent message to admin ${adminId}: ${message}`
-        );
-      }
-    });
-
-    // Admin replies to specific customer
-    socket.on(
-      "chat:adminToCustomer",
-      async ({ recipientId, adminId, message }) => {
-        const customerSocketId = connectedUsers.get(recipientId);
-
-        if (customerSocketId) {
-          // Send message via socket
-          io.to(customerSocketId).emit("chat:receiveFromAdmin", {
-            adminId,
-            message,
-          });
-
-          Logger.info(
-            `Admin ${adminId} sent message to Customer ${recipientId}: ${message}`
-          );
-        } else {
-          Logger.warn(`Customer socket not found for ID ${recipientId}`);
-        }
-
-        // 💾 Store message in DB
-        try {
-          await HelpCenterMessage.create({
-            sender_id: adminId,
-            recipient_id: recipientId,
-            message,
-            sender_role: "admin",
-          });
-        } catch (err) {
-          Logger.error(`Failed to save message from admin ${adminId}:`, err);
-        }
-      }
-    );
-
     // Rider joins (delivery person)
     socket.on("rider:join", (riderId) => {
       connectedRiders.set(riderId, socket.id);
@@ -159,14 +93,6 @@ function setupSocket(server) {
         if (sId === socket.id) {
           connectedUsers.delete(userId);
           Logger.info(`User ${userId} disconnected (socket ${socket.id})`);
-          break;
-        }
-      }
-
-      for (const [adminId, sId] of connectedAdmins.entries()) {
-        if (sId === socket.id) {
-          connectedAdmins.delete(adminId);
-          Logger.info(`Admin ${adminId} disconnected (socket ${socket.id})`);
           break;
         }
       }
