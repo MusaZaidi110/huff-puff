@@ -150,8 +150,10 @@
  *                 message:
  *                   type: string
  *                   example: User registered successfully
- *                 user:
- *                   $ref: '#/components/schemas/User'
+ *                 userId:
+ *                   type: string
+ *                   format: uuid
+ *                   example: d1f7e9c0-8b62-4d3e-9b43-97c7b7f01234
  *       400:
  *         description: Validation error.
  *         content:
@@ -290,11 +292,10 @@
  *     summary: Login customer user
  *     tags: [Authentication]
  *     description: >
- *       Logs in a customer user with email and password:
+ *       Logs in a customer user with email and password.
  *       - Validates email and password.
- *       - Checks if the user exists.
- *       - Verifies password hash.
- *       - Returns authentication token or JWT on success.
+ *       - Checks if the user exists and if the password is correct.
+ *       - Returns JWT token and userId on success.
  *     requestBody:
  *       required: true
  *       content:
@@ -308,12 +309,10 @@
  *               email:
  *                 type: string
  *                 format: email
- *                 description: User's registered email address.
  *                 example: user@example.com
  *               password:
  *                 type: string
  *                 format: password
- *                 description: User's password.
  *                 example: securePass123
  *     responses:
  *       200:
@@ -326,12 +325,16 @@
  *                 success:
  *                   type: boolean
  *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
  *                 token:
  *                   type: string
- *                   description: JWT authentication token.
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6...
- *                 user:
- *                   $ref: '#/components/schemas/User'
+ *                 userId:
+ *                   type: string
+ *                   format: uuid
+ *                   example: d1f7e9c0-8b62-4d3e-9b43-97c7b7f01234
  *       400:
  *         description: Validation error or missing fields.
  *         content:
@@ -453,4 +456,84 @@
  *                 message:
  *                   type: string
  *                   example: Internal server error
+ */
+
+
+/**
+ * @swagger
+ * /refresh-token/{userId}:
+ *   get:
+ *     summary: Refresh access token using stored refresh token
+ *     tags: [Authentication]
+ *     description: >
+ *       Generates a new access token for a user using a valid stored refresh token.
+ *       - Validates the provided userId in the path.
+ *       - Checks if a refresh token is stored for the user in the server's cache.
+ *       - Verifies the refresh token.
+ *       - Generates and returns a new access token (JWT).
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: UUID of the user for whom to refresh the access token
+ *     responses:
+ *       200:
+ *         description: Access token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Access token refreshed successfully.
+ *                 token:
+ *                   type: string
+ *                   description: New JWT access token
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       400:
+ *         description: Missing or invalid userId
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: User ID is required.
+ *       403:
+ *         description: Invalid, expired, or missing refresh token; user not found or inactive
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Refresh token expired or not found. Please login again.
+ *       500:
+ *         description: Internal server error during token refresh
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error.
  */
