@@ -33,7 +33,10 @@ const options = {
       {
         url: 'http://localhost:8000',
         description: 'Development server',
-      },
+      },{
+        url: 'https://huff-puff-production.up.railway.app/',
+        description: "Testing Server"
+      }
     ],
     components: {
       securitySchemes: {
