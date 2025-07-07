@@ -1,9 +1,9 @@
 const fs = require("fs");
-const path = require("path");  
+const path = require("path");
 const handlebars = require("handlebars");
 
 const OTPTemplate = (otp_code) => {
-  const templatePath = path.join(__dirname, "otp-email.hbs");  // same folder
+  const templatePath = path.join(__dirname, "otp-email.hbs"); // same folder
   const templateSource = fs.readFileSync(templatePath, "utf8");
   const template = handlebars.compile(templateSource);
 
@@ -13,4 +13,15 @@ const OTPTemplate = (otp_code) => {
   });
 };
 
-module.exports = { OTPTemplate };
+const forgetPasswordTemplate = (otp_code) => {
+  const templatePath = path.join(__dirname, "forgot-password.hbs"); // same folder
+  const templateSource = fs.readFileSync(templatePath, "utf8");
+  const template = handlebars.compile(templateSource);
+
+    return template({
+    otpCode: otp_code,
+    currentYear: new Date().getFullYear(),
+  });
+};
+
+module.exports = { OTPTemplate, forgetPasswordTemplate };

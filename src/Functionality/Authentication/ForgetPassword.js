@@ -5,7 +5,7 @@ const OTP = require("../../Models/UserManagement/OTP.Model");
 
 const Logger = require("../../Utils/Logger");
 const {
-  OTPTemplate,
+  forgetPasswordTemplate,
 } = require("../../EmailTemplates/OTP-Email-Handler/otp-email");
 const sendEmail = require("../../Utils/SendEmail");
 
@@ -87,7 +87,7 @@ const generateOTP = () => {
 };
 
 const sendOTPEmail = async (email, otpCode) => {
-  const template = OTPTemplate(otpCode);
+  const template = forgetPasswordTemplate(otpCode);
   const success = await sendEmail({
     to: email,
     subject: "HUFF&PUFF Password Reset OTP",
