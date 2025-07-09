@@ -23,6 +23,10 @@ const { validateRequest } = require("../Middlewares/ValidateRequest");
 const registerSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
+  user_name: Joi.string().min(2).max(50).required(),
+  phone_number: Joi.string()
+    .pattern(/^[0-9+\-() ]{7,20}$/)
+    .required()
 });
 
 const confirmRegistrationSchema = Joi.object({

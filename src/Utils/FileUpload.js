@@ -2,108 +2,151 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
-const MediaAsset = require('../Models/MediaAssets/MediaAsset.Model');
 
 const upload = multer({
   dest: 'temp/',
   limits: {
-    fileSize: 50 * 1024 * 1024,
-    files: 10
+    fileSize: 50 * 1024 * 1024, // 50MB
+    files: 10 // Max 10 files
   },
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.match(/^image\/(jpeg|png|gif|webp)$|^video\/(mp4|quicktime|x-msvideo)$/)) {
-      return cb(new Error('Only image and video files are allowed!'), false);
+    // Allow only image files
+    if (!file.mimetype.match(/^image\/(jpeg|png|gif|webp|svg\+xml)$/)) {
+      return cb(new Error('Only image files are allowed!'), false);
     }
     cb(null, true);
   }
 });
 
 const getBaseUrl = (req) => {
-  const protocol = req.protocol;
-  const host = req.get('host');
-  return `${protocol}://${host}`;
+  return `${req.protocol}://${req.get('host')}`;
 };
 
-const uploadImages = async (req, subfolder = '', uploaded_by = null, context = null, is_temporary = false) => {
+/**
+ * Uploads images to the server and returns their URLs
+ * @param {Object} req - Express request object
+ * @param {string} subfolder - Subfolder within uploads directory (e.g., 'categories')
+ * @returns {Promise<Array<string>>} Array of image URLs
+ */
+const uploadImages = async (req, subfolder = '') => {
+  if (!req.files || req.files.length === 0) {
+    throw new Error('No files were uploaded');
+  }
+
+  const uploadDir = path.join(__dirname, '../Media_Assets', subfolder);
+  
+  // Create directory if it doesn't exist
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  const BASE_URL = getBaseUrl(req);
+  const uploadedUrls = [];
+
   try {
-    if (!req.files || req.files.length === 0) {
-      throw new Error('No media files uploaded');
+    for (const file of req.files) {
+      const ext = path.extname(file.originalname).toLowerCase();
+      const filename = `${uuidv4()}${ext}`;
+      const filePath = path.join(uploadDir, filename);
+
+      // Move file from temp to permanent location
+      fs.renameSync(file.path, filePath);
+
+      // Construct URL (relative to public folder)
+      const relativePath = path.join('uploads', subfolder, filename).replace(/\\/g, '/');
+      const url = `${BASE_URL}/${relativePath}`;
+      
+      uploadedUrls.push(url);
     }
 
-    const uploadDir = path.join(__dirname, '../uploads', subfolder);
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    const BASE_URL = getBaseUrl(req);
-
-    const mediaAssets = await Promise.all(
-      req.files.map(async file => {
-        const ext = path.extname(file.originalname);
-        const filename = `${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
-        const filePath = path.join(uploadDir, filename);
-
-        fs.renameSync(file.path, filePath);
-
-        const relativePath = path.join('uploads', subfolder, filename);
-        const url = `${BASE_URL}/${relativePath.replace(/\\/g, '/')}`;
-
-        await MediaAsset.create({
-          id: uuidv4(),
-          url,
-          type: file.mimetype,
-          filename,
-          size: file.size,
-          uploaded_by,
-          context,
-          is_temporary
-        });
-      })
-    );
-
-    return true;
+    return uploadedUrls;
   } catch (error) {
-    if (req.files) {
-      req.files.forEach(file => {
-        if (fs.existsSync(file.path)) {
-          fs.unlinkSync(file.path);
-        }
-      });
-    }
+    // Cleanup any files that might have been uploaded
+    uploadedUrls.forEach(url => {
+      const filePath = path.join(__dirname, '../Media_Assets', new URL(url).pathname);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    });
     throw error;
   }
 };
 
-const cleanUpUnusedMedia = async (thresholdDate) => {
-  const oldAssets = await MediaAsset.findAll({
-    where: {
-      is_temporary: true,
-      created_at: {
-        [require('sequelize').Op.lt]: thresholdDate,
-      },
-    },
-  });
-
-  for (const asset of oldAssets) {
-    const localPath = path.join(__dirname, '..', asset.url.replace(/^.*\/uploads\//, 'uploads/'));
-    if (fs.existsSync(localPath)) {
-      fs.unlinkSync(localPath);
+/**
+ * Deletes an image file from the server
+ * @param {string} imageUrl - The URL of the image to delete
+ */
+const deleteImage = (imageUrl) => {
+  try {
+    if (!imageUrl) return;
+    
+    const urlObj = new URL(imageUrl);
+    const filePath = path.join(__dirname, '../Media_Assets', urlObj.pathname);
+    
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      return true;
     }
-    await asset.destroy();
+    return false;
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    return false;
   }
-
-  return oldAssets.length;
 };
-
-MediaAsset.addHook('afterDestroy', async (asset, options) => {
-  const localPath = path.join(__dirname, '..', asset.url.replace(/^.*\/uploads\//, 'uploads/'));
-  if (fs.existsSync(localPath)) {
-    fs.unlinkSync(localPath);
-  }
-});
 
 module.exports = {
   upload,
   uploadImages,
-  cleanUpUnusedMedia
+  deleteImage
 };
+
+
+
+// const express = require('express');
+// const router = express.Router();
+// const { upload, uploadImages } = require('../utils/imageUpload');
+// const Category = require('../models/Category');
+
+// // Create category with image
+// router.post('/categories', upload.array('images', 1), async (req, res) => {
+//   try {
+//     const imageUrls = await uploadImages(req, 'categories');
+    
+//     const category = await Category.create({
+//       name: req.body.name,
+//       description: req.body.description,
+//       image_url: imageUrls[0], // Store first image URL
+//       is_active: true,
+//       display_order: req.body.display_order || 0
+//     });
+
+//     res.status(201).json(category);
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// });
+
+// // Update category image
+// router.put('/categories/:id/image', upload.array('images', 1), async (req, res) => {
+//   try {
+//     // Get existing category
+//     const category = await Category.findByPk(req.params.id);
+//     if (!category) {
+//       return res.status(404).json({ error: 'Category not found' });
+//     }
+
+//     // Delete old image if exists
+//     if (category.image_url) {
+//       deleteImage(category.image_url);
+//     }
+
+//     // Upload new image
+//     const imageUrls = await uploadImages(req, 'categories');
+//     category.image_url = imageUrls[0];
+//     await category.save();
+
+//     res.json(category);
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// });

@@ -111,8 +111,8 @@
  *     summary: Register a new customer user
  *     tags: [Authentication]
  *     description: >
- *       Creates a new customer account with email and password, generates and stores OTP, and sends OTP to the user's email for verification.
- *       - Validates email and password format.
+ *       Creates a new customer account with email, password, user name, and phone number, generates and stores OTP, and sends OTP to the user's email for verification.
+ *       - Validates email, password, user name, and phone number format.
  *       - Hashes password before storing.
  *       - Creates user with `is_active: false`.
  *       - Sends OTP email after transaction completion.
@@ -125,6 +125,8 @@
  *             required:
  *               - email
  *               - password
+ *               - user_name
+ *               - phone_number
  *             properties:
  *               email:
  *                 type: string
@@ -134,8 +136,16 @@
  *               password:
  *                 type: string
  *                 format: password
- *                 description: Password (minimum 6 characters).
+ *                 description: Password (minimum 8 characters).
  *                 example: securePass123
+ *               user_name:
+ *                 type: string
+ *                 description: Full name of the user.
+ *                 example: John Doe
+ *               phone_number:
+ *                 type: string
+ *                 description: Phone number of the user (E.164 or local format).
+ *                 example: "+971501234567"
  *     responses:
  *       201:
  *         description: User registered successfully; OTP sent for verification.
@@ -150,10 +160,26 @@
  *                 message:
  *                   type: string
  *                   example: User registered successfully
- *                 userId:
- *                   type: string
- *                   format: uuid
- *                   example: d1f7e9c0-8b62-4d3e-9b43-97c7b7f01234
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: d1f7e9c0-8b62-4d3e-9b43-97c7b7f01234
+ *                     email:
+ *                       type: string
+ *                       format: email
+ *                       example: user@example.com
+ *                     role:
+ *                       type: string
+ *                       example: customer
+ *                     user_name:
+ *                       type: string
+ *                       example: John Doe
+ *                     phone_number:
+ *                       type: string
+ *                       example: "+971501234567"
  *       400:
  *         description: Validation error.
  *         content:
@@ -166,7 +192,7 @@
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: Email and password are required fields
+ *                   example: Email, password, user name, and phone number are required
  *       409:
  *         description: User with this email already exists.
  *         content:
