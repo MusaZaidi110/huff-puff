@@ -61,4 +61,9 @@ module.exports = (app) => {
     customSiteTitle: 'API Documentation',
     customCss: '.swagger-ui .topbar { display: none }',
   }));
+
+   app.get('/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(specs);
+  });
 };
