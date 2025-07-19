@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Huff&Puff Burgers!</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        
+        /* Card Container */
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Header */
+        .header {
+            background-color: rgb(188, 0, 0);
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .logo {
+            max-height: 40px;
+        }
+        
+        /* Content */
+        .content {
+            padding: 32px;
+        }
+        
+        h1 {
+            color: #111827;
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .welcome-image {
+            text-align: center;
+            margin: 24px 0;
+        }
+        
+        .welcome-image img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        
+        /* Benefits Section */
+        .benefits {
+            margin: 32px 0;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .benefit-icon {
+            font-size: 24px;
+            margin-right: 16px;
+            color: rgb(188, 0, 0);
+        }
+        
+        .benefit-text {
+            flex: 1;
+        }
+        
+        .benefit-title {
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+        
+        /* CTA Button */
+        .cta-section {
+            text-align: center;
+            margin: 32px 0;
+        }
+        
+        .cta-button {
+            background: rgb(188, 0, 0);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        
+        .cta-button:hover {
+            background: rgb(158, 0, 0);
+        }
+        
+        /* Welcome Gift */
+        .welcome-gift {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 24px 0;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .gift-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: rgb(188, 0, 0);
+            margin-bottom: 8px;
+        }
+        
+        /* App Download Section */
+        .app-download {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 24px 0;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .app-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+        
+        .app-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .app-button {
+            background: #111827;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            background-color: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 24px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .app-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header with Logo -->
+        <div class="header">
+            <img src="https://huffpuffburger.com/wp-content/uploads/2020/09/HuffPuff-logo-200x80-1.png" alt="Huff&Puff Burgers Logo" class="logo">
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <h1>Welcome to Huff&Puff Burgers! 🎉</h1>
+            
+            <div class="welcome-image">
+                <!-- Placeholder for welcome image - replace with actual image URL -->
+                <img src="https://huffpuffburger.com/wp-content/uploads/2020/09/HuffPuff-burger.png" alt="Welcome to Huff&Puff" style="max-height: 200px;">
+            </div>
+            
+            <p>Hello {{firstName}},</p>
+            
+            <p>We're thrilled to have you join the Huff&Puff Burgers family! Your account has been successfully created and you're now ready to enjoy our delicious burgers, crispy fries, and refreshing shakes.</p>
+            
+            <!-- Benefits Section -->
+            <div class="benefits">
+                <h2 style="text-align: center; font-size: 20px; margin-bottom: 24px;">Here's what you can enjoy as a member:</h2>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🍔</div>
+                    <div class="benefit-text">
+                        <div class="benefit-title">Exclusive Rewards</div>
+                        <div>Earn Huffs Points with every order and redeem them for free food</div>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">⚡</div>
+                    <div class="benefit-text">
+                        <div class="benefit-title">Faster Ordering</div>
+                        <div>Save your favorite orders for quick reordering</div>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🎁</div>
+                    <div class="benefit-text">
+                        <div class="benefit-title">Special Offers</div>
+                        <div>Get members-only deals and birthday surprises</div>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">📱</div>
+                    <div class="benefit-text">
+                        <div class="benefit-title">Order Tracking</div>
+                        <div>Real-time updates on your order status</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <a href="[ORDER_NOW_LINK]" class="cta-button">Start Your First Order</a>
+            </div>
+            
+            <!-- App Download Section -->
+            <div class="app-download">
+                <div class="app-title">Get the Best Experience with Our Mobile App</div>
+                <p style="margin-bottom: 16px; color: #6b7280;">Enjoy faster ordering, exclusive app-only offers, and easier rewards tracking!</p>
+                <div class="app-buttons">
+                    <a href="[APP_STORE_LINK]" class="app-button">
+                        📱 Download for iOS
+                    </a>
+                    <a href="[PLAY_STORE_LINK]" class="app-button">
+                        🤖 Download for Android
+                    </a>
+                </div>
+            </div>
+            
+            <p style="text-align: center; margin-top: 24px;">We can't wait to serve you your first Huff&Puff burger!</p>
+            
+            <p style="text-align: center;">
+                The Huff&Puff Team<br>
+                <em>Burgers Worth Huffing & Puffing About!</em>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>© {{currentYear}} Huff&Puff Burgers. All rights reserved.</p>
+            <p>
+                HUFF&PUFF | 
+                <a href="[Privacy Policy URL]" style="color: #4f46e5; text-decoration: none;">Privacy Policy</a> | 
+                <a href="[Terms of Service URL]" style="color: #4f46e5; text-decoration: none;">Terms</a> |
+                <a href="[UNSUBSCRIBE_LINK]" style="color: #4f46e5; text-decoration: none;">Unsubscribe</a>
+            </p>
+            <p style="margin-top: 8px;">
+                <a href="[CONTACT_US]" style="color: #4f46e5; text-decoration: none;">Contact Us</a> | 
+                <a href="[LOCATIONS]" style="color: #4f46e5; text-decoration: none;">Our Locations</a> | 
+                <a href="[HELP_CENTER]" style="color: #4f46e5; text-decoration: none;">Help Center</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
