@@ -3,11 +3,11 @@ const router = express.Router();
 const Joi = require("joi");
 
 const completePointsPurchase =
-  require("../Functionality/CRUD/LoyaltyPointsPurchase/index").completePointsPurchase;
+  require("../Functionality/LoyaltyPoints/LoyaltyPointsPurchase/index").completePointsPurchase;
 const useCustomerReward =
-  require("../Functionality/CRUD/CustomerRewards").useCustomerReward;
+  require("../Functionality/LoyaltyPoints/CustomerRewards").useCustomerReward;
 const acceptPointsTransfer =
-  require("../Functionality/CRUD/LoyaltyPointsTransfer").acceptPointsTransfer;
+  require("../Functionality/LoyaltyPoints/LoyaltyPointsTransfer").acceptPointsTransfer;
 const convertPointsToCurrency =
   require("../Functionality/LoyaltyPoints/HelperFunctions").convertPointsToCurrency;
 const convertCurrencyToPoints =

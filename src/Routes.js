@@ -8,6 +8,7 @@ const LoyaltyPointsRouter = require("./Routers/LoyaltyPoints.Router");
 const BranchesRouter = require("./Routers/Branches.Router");
 const BranchDealsRouter = require("./Routers/BranchDeals.Router");
 const BranchMenuRouter = require("./Routers/BranchMenu.Router");
+const DealsRouter = require("./Routers/Deals.Router");
 const router = express.Router();
 
 router.use("/", AuthRoute);
@@ -18,5 +19,6 @@ router.use("/points", LoyaltyPointsRouter);
 router.use("/branches", BranchesRouter);
 router.use("/branch-deals", BranchDealsRouter);
 router.use("/branch-menu", BranchMenuRouter);
+router.use("/deals", DealsRouter);
 
 module.exports = router;

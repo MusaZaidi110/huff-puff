@@ -1,6 +1,6 @@
 const LoyaltyPointTransfer = require('../../../Models/LoyaltySystem/LoyaltyPointTransfer.Model');
 const LoyaltyPointsTransaction = require('../../../Models/LoyaltySystem/LoyaltyPointsTransaction.Model');
-const getLoyaltyPointsSummary = require('../../LoyaltyPoints/GetLoyaltyPointSumary');
+const getLoyaltyPointsSummary = require('../GetLoyaltyPointSumary');
 
 
 // Transfer points to another customer

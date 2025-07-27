@@ -1,6 +1,6 @@
 const LoyaltyPointsTransaction = require("../../Models/LoyaltySystem/LoyaltyPointsTransaction.Model");
 const getLoyaltyPointsSummary = require("../LoyaltyPoints/GetLoyaltyPointSumary");
-const { assignRewardToCustomer } = require("../CRUD/CustomerRewards/index");
+const { assignRewardToCustomer } = require("../LoyaltyPoints/CustomerRewards/index");
 // Record points earned from an order
 async function recordOrderPoints(customerId, orderId, points) {
   try {

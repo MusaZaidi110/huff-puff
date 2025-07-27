@@ -5,7 +5,7 @@ const {
   getActiveLoyaltyRewards,
   updateLoyaltyReward,
   deleteLoyaltyReward,
-} = require("../Functionality/CRUD/LoyaltyRewards");
+} = require("../Functionality/LoyaltyPoints/LoyaltyRewards");
 
 // Create a new loyalty reward (Admin only)
 router.post("/rewards", async (req, res) => {

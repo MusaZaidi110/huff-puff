@@ -4,12 +4,12 @@ const Joi = require("joi");
 
 const {validateRequest} = require("../Middlewares/ValidateRequest");
 const assignRewardToCustomer =
-  require("../Functionality/CRUD/CustomerRewards").assignRewardToCustomer;
+  require("../Functionality/LoyaltyPoints/CustomerRewards").assignRewardToCustomer;
 const getCustomerRewards =
-  require("../Functionality/CRUD/CustomerRewards").getCustomerRewards;
+  require("../Functionality/LoyaltyPoints/CustomerRewards").getCustomerRewards;
 const getLoyaltyPointsSummary = require("../Functionality/LoyaltyPoints/GetLoyaltyPointSumary");
 const purchaseLoyaltyPoints =
-  require("../Functionality/CRUD/LoyaltyPointsPurchase/index").purchaseLoyaltyPoints;
+  require("../Functionality/LoyaltyPoints/LoyaltyPointsPurchase/index").purchaseLoyaltyPoints;
 const redeemPoints =
   require("../Functionality/LoyaltyPoints/PointsTransactionHandling").redeemPoints;
 
