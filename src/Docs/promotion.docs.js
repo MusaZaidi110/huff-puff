@@ -1,118 +1,156 @@
 /**
  * @swagger
+ * tags:
+ *   name: Promotions
+ *   description: API endpoints for managing and retrieving promotions
+ */
+
+/**
+ * @swagger
+ * /promotions:
+ *   get:
+ *     summary: Get all currently active promotions
+ *     description: Returns a list of promotions that are currently active (based on current date/time and isActive flag)
+ *     tags: [Promotions]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Maximum number of promotions to return (default is 10)
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         description: Number of promotions to skip for pagination
+ *     responses:
+ *       200:
+ *         description: A list of active promotions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/PromotionWithItems'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       description: Total number of active promotions
+ *                       example: 15
+ *                     limit:
+ *                       type: integer
+ *                       example: 10
+ *                     offset:
+ *                       type: integer
+ *                       example: 0
+ *       400:
+ *         description: Invalid query parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
- *     Promotion:
+ *     PromotionWithItems:
  *       type: object
- *       description: Represents a promotional offer that can be applied to items or provide benefits like free delivery.
- *       required:
- *         - id
- *         - name
- *         - promoType
- *         - startDate
- *         - endDate
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *           description: Unique identifier for the promotion.
- *           example: "e7c82858-9091-4bcf-9e8f-1a5ed3b4e63f"
-
+ *           example: "550e8400-e29b-41d4-a716-446655440000"
  *         name:
  *           type: string
- *           description: Name of the promotion.
- *           example: "Spring Sale"
-
+ *           example: "Summer Special"
  *         description:
  *           type: string
- *           description: Optional description of the promotion.
- *           example: "Enjoy 20% off on all fashion items during our Spring Sale!"
-
- *         promoType:
- *           type: string
- *           enum: [ITEM_DISCOUNT, FREE_DELIVERY]
- *           description: Type of promotion.
- *           example: "ITEM_DISCOUNT"
-
- *         discountValue:
+ *           example: "Special summer discount on selected items"
+ *         discountPercentage:
  *           type: number
- *           format: decimal
- *           description: The discount amount (can be percentage or fixed value depending on business logic).
- *           example: 20.00
-
+ *           format: float
+ *           example: 15.5
  *         startDate:
  *           type: string
  *           format: date-time
- *           description: The date and time when the promotion starts.
- *           example: "2025-06-01T00:00:00Z"
-
+ *           example: "2024-06-01T00:00:00Z"
  *         endDate:
  *           type: string
  *           format: date-time
- *           description: The date and time when the promotion ends.
- *           example: "2025-06-30T23:59:59Z"
-
+ *           example: "2024-08-31T23:59:59Z"
  *         isActive:
  *           type: boolean
- *           description: Indicates if the promotion is currently active.
  *           example: true
-
- *         imageUrl:
- *           type: string
- *           description: Optional image URL used to visually represent the promotion.
- *           example: "https://cdn.example.com/promotions/spring-sale-banner.webp"
-
- *         showInSlider:
- *           type: boolean
- *           description: Flag to indicate whether the promotion should appear in the homepage slider.
- *           example: true
-
- *         showInPopup:
- *           type: boolean
- *           description: Flag to indicate whether the promotion should appear as a popup modal.
- *           example: false
-
  *         createdAt:
  *           type: string
  *           format: date-time
- *           description: Timestamp when the promotion was created.
- *           readOnly: true
- *           example: "2025-05-29T12:00:00Z"
-
+ *           example: "2024-05-01T12:00:00Z"
  *         updatedAt:
  *           type: string
  *           format: date-time
- *           description: Timestamp when the promotion was last updated.
- *           readOnly: true
- *           example: "2025-05-30T09:45:00Z"
-
+ *           example: "2024-05-15T09:30:00Z"
+ *         items:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/PromotionItem'
+ * 
  *     PromotionItem:
  *       type: object
- *       description: Many-to-many relationship mapping promotions to specific items.
- *       properties:
- *         promotionId:
- *           type: string
- *           format: uuid
- *           description: ID of the promotion.
- *         itemId:
- *           type: string
- *           format: uuid
- *           description: ID of the item associated with the promotion.
-
- *     PromotionRedemption:
- *       type: object
- *       description: Tracks redemptions or usage logs of a promotion by users.
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *         userId:
+ *           example: "660e8400-e29b-41d4-a716-446655440000"
+ *         name:
  *           type: string
- *           format: uuid
- *         promotionId:
+ *           example: "Premium Pizza"
+ *         image_url:
  *           type: string
- *           format: uuid
- *         redeemedAt:
- *           type: string
- *           format: date-time
+ *           example: "https://example.com/images/premium-pizza.jpg"
+ * 
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         error:
+ *           type: object
+ *           properties:
+ *             code:
+ *               type: integer
+ *               example: 400
+ *             message:
+ *               type: string
+ *               example: "Invalid query parameters"
+ *             details:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   field:
+ *                     type: string
+ *                     example: "limit"
+ *                   issue:
+ *                     type: string
+ *                     example: "Must be between 1 and 100"
  */
