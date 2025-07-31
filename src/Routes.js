@@ -1,24 +1,49 @@
 const express = require("express");
 // const { AuthRequired } = require("./Middlewares/Auth");
 const AuthRoute = require("./Routers/Auth.Router");
-const DeviceTokenRoute = require("./Routers/DeviceToken.Router")
-const Promotions = require("./Routers/Promotions.Router")
+const DeviceTokenRoute = require("./Routers/DeviceToken.Router");
+const PromotionsRouter = require("./Routers/Promotions.Router");
 const CustomerRewardsRouter = require("./Routers/CustomerRewards.Router");
 const LoyaltyPointsRouter = require("./Routers/LoyaltyPoints.Router");
 const BranchesRouter = require("./Routers/Branches.Router");
 const BranchDealsRouter = require("./Routers/BranchDeals.Router");
 const BranchMenuRouter = require("./Routers/BranchMenu.Router");
 const DealsRouter = require("./Routers/Deals.Router");
+const CategoryRouter = require("./Routers/Category.Router");
+const ItemRouter = require("./Routers/Item.Router");
+const ItemVariantRouter = require("./Routers/ItemVariant.Router");
+const ItemAddonRouter = require("./Routers/ItemAddon.Router");
+const OrderRouter = require("./Routers/Order.Router");
+const OrderItemsRouter = require("./Routers/OrderItem.Router");
+const OrderAddonsRouter = require("./Routers/OrderItemAddon.Router");
+const OrderStatusHistoryRouter = require("./Routers/OrderStatusHistory.Router");
+const ReviewsRouter = require("./Routers/Review.Router");
+const PaymentsRouter = require("./Routers/Payment.Router");
+const RefundRouter = require("./Routers/Refund.Router");
+const BannerRouter = require("./Routers/Banner.Router");
+
 const router = express.Router();
 
 router.use("/", AuthRoute);
 router.use("/device-token", DeviceTokenRoute);
-router.use("/promotions", Promotions);
 router.use("/customers", CustomerRewardsRouter);
 router.use("/points", LoyaltyPointsRouter);
 router.use("/branches", BranchesRouter);
 router.use("/branch-deals", BranchDealsRouter);
 router.use("/branch-menu", BranchMenuRouter);
 router.use("/deals", DealsRouter);
+router.use("/category", CategoryRouter);
+router.use("/item", ItemRouter);
+router.use("/item-variant", ItemVariantRouter);
+router.use("/item-addon", ItemAddonRouter);
+router.use("/order", OrderRouter);
+router.use("/order-items", OrderItemsRouter);
+router.use("/order-addons", OrderAddonsRouter);
+router.use("/order-status-history", OrderStatusHistoryRouter);
+router.use("/reviews", ReviewsRouter);
+router.use("/payments", PaymentsRouter);
+router.use("/refund", RefundRouter);
+router.use("/banner", BannerRouter);
+router.use("/promotions", PromotionsRouter);
 
 module.exports = router;

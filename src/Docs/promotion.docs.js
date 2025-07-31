@@ -2,155 +2,482 @@
  * @swagger
  * tags:
  *   name: Promotions
- *   description: API endpoints for managing and retrieving promotions
- */
-
-/**
- * @swagger
- * /promotions:
- *   get:
- *     summary: Get all currently active promotions
- *     description: Returns a list of promotions that are currently active (based on current date/time and isActive flag)
- *     tags: [Promotions]
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           minimum: 1
- *           maximum: 100
- *         description: Maximum number of promotions to return (default is 10)
- *       - in: query
- *         name: offset
- *         schema:
- *           type: integer
- *           minimum: 0
- *         description: Number of promotions to skip for pagination
- *     responses:
- *       200:
- *         description: A list of active promotions
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/PromotionWithItems'
- *                 pagination:
- *                   type: object
- *                   properties:
- *                     total:
- *                       type: integer
- *                       description: Total number of active promotions
- *                       example: 15
- *                     limit:
- *                       type: integer
- *                       example: 10
- *                     offset:
- *                       type: integer
- *                       example: 0
- *       400:
- *         description: Invalid query parameters
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *   description: Promotion management system
  */
 
 /**
  * @swagger
  * components:
  *   schemas:
- *     PromotionWithItems:
+ *     Promotion:
  *       type: object
+ *       required:
+ *         - name
+ *         - discountType
+ *         - discountValue
+ *         - startDate
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *           example: "550e8400-e29b-41d4-a716-446655440000"
+ *           description: Auto-generated promotion ID
  *         name:
  *           type: string
- *           example: "Summer Special"
+ *           description: Promotion name
  *         description:
  *           type: string
- *           example: "Special summer discount on selected items"
- *         discountPercentage:
+ *           description: Promotion description
+ *         discountType:
+ *           type: string
+ *           enum: [percentage, fixed_amount, buy_x_get_y]
+ *           description: Type of discount
+ *         discountValue:
  *           type: number
  *           format: float
- *           example: 15.5
+ *           description: Discount amount/percentage
+ *         minOrderAmount:
+ *           type: number
+ *           format: float
+ *           description: Minimum order amount for promotion
+ *         maxDiscountAmount:
+ *           type: number
+ *           format: float
+ *           description: Maximum discount amount
  *         startDate:
  *           type: string
  *           format: date-time
- *           example: "2024-06-01T00:00:00Z"
+ *           description: When promotion starts
  *         endDate:
  *           type: string
  *           format: date-time
- *           example: "2024-08-31T23:59:59Z"
+ *           description: When promotion ends
  *         isActive:
  *           type: boolean
- *           example: true
- *         createdAt:
+ *           default: true
+ *           description: Whether promotion is active
+ *         imageUrl:
  *           type: string
- *           format: date-time
- *           example: "2024-05-01T12:00:00Z"
- *         updatedAt:
+ *           description: Promotion image URL
+ *         code:
  *           type: string
- *           format: date-time
- *           example: "2024-05-15T09:30:00Z"
+ *           description: Promotion code
  *         items:
  *           type: array
  *           items:
- *             $ref: '#/components/schemas/PromotionItem'
- * 
+ *             $ref: '#/components/schemas/Item'
+ *       example:
+ *         id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *         name: "Summer Sale"
+ *         description: "50% off all summer items"
+ *         discountType: "percentage"
+ *         discountValue: 50
+ *         minOrderAmount: 0
+ *         maxDiscountAmount: 20
+ *         startDate: "2023-06-01T00:00:00Z"
+ *         endDate: "2023-08-31T23:59:59Z"
+ *         isActive: true
+ *         imageUrl: "https://example.com/promotions/summer-sale.jpg"
+ *         code: "SUMMER50"
+
+ *     PromotionCreate:
+ *       type: object
+ *       required:
+ *         - name
+ *         - discountType
+ *         - discountValue
+ *         - startDate
+ *       properties:
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         discountType:
+ *           type: string
+ *           enum: [percentage, fixed_amount, buy_x_get_y]
+ *         discountValue:
+ *           type: number
+ *           format: float
+ *         minOrderAmount:
+ *           type: number
+ *           format: float
+ *         maxDiscountAmount:
+ *           type: number
+ *           format: float
+ *         startDate:
+ *           type: string
+ *           format: date-time
+ *         endDate:
+ *           type: string
+ *           format: date-time
+ *         isActive:
+ *           type: boolean
+ *         code:
+ *           type: string
+ *       example:
+ *         name: "Summer Sale"
+ *         description: "50% off all summer items"
+ *         discountType: "percentage"
+ *         discountValue: 50
+ *         minOrderAmount: 0
+ *         maxDiscountAmount: 20
+ *         startDate: "2023-06-01T00:00:00Z"
+ *         endDate: "2023-08-31T23:59:59Z"
+ *         isActive: true
+ *         code: "SUMMER50"
+
+ *     PromotionUpdate:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         discountType:
+ *           type: string
+ *           enum: [percentage, fixed_amount, buy_x_get_y]
+ *         discountValue:
+ *           type: number
+ *           format: float
+ *         minOrderAmount:
+ *           type: number
+ *           format: float
+ *         maxDiscountAmount:
+ *           type: number
+ *           format: float
+ *         startDate:
+ *           type: string
+ *           format: date-time
+ *         endDate:
+ *           type: string
+ *           format: date-time
+ *         isActive:
+ *           type: boolean
+ *         code:
+ *           type: string
+
  *     PromotionItem:
  *       type: object
  *       properties:
- *         id:
+ *         promotionId:
  *           type: string
  *           format: uuid
- *           example: "660e8400-e29b-41d4-a716-446655440000"
- *         name:
+ *         itemId:
  *           type: string
- *           example: "Premium Pizza"
- *         image_url:
+ *           format: uuid
+ *         createdAt:
  *           type: string
- *           example: "https://example.com/images/premium-pizza.jpg"
- * 
+ *           format: date-time
+
  *     ErrorResponse:
  *       type: object
  *       properties:
- *         success:
- *           type: boolean
- *           example: false
  *         error:
- *           type: object
- *           properties:
- *             code:
- *               type: integer
- *               example: 400
- *             message:
- *               type: string
- *               example: "Invalid query parameters"
- *             details:
+ *           type: string
+
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
+
+/**
+ * @swagger
+ * /promotions:
+ *   post:
+ *     summary: Create a new promotion (Admin)
+ *     tags: [Promotions]
+ *     security:
+ *       - bearerAuth: []
+ *     consumes:
+ *       - multipart/form-data
+ *     parameters:
+ *       - in: formData
+ *         name: image
+ *         type: file
+ *         description: Promotion image
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               discountType:
+ *                 type: string
+ *               discountValue:
+ *                 type: number
+ *               minOrderAmount:
+ *                 type: number
+ *               maxDiscountAmount:
+ *                 type: number
+ *               startDate:
+ *                 type: string
+ *               endDate:
+ *                 type: string
+ *               isActive:
+ *                 type: boolean
+ *               code:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Promotion created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Promotion'
+ *       400:
+ *         description: Invalid request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /promotions/active:
+ *   get:
+ *     summary: Get active promotions
+ *     tags: [Promotions]
+ *     responses:
+ *       200:
+ *         description: List of active promotions
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: array
  *               items:
- *                 type: object
- *                 properties:
- *                   field:
- *                     type: string
- *                     example: "limit"
- *                   issue:
- *                     type: string
- *                     example: "Must be between 1 and 100"
+ *                 $ref: '#/components/schemas/Promotion'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /promotions/{id}:
+ *   get:
+ *     summary: Get promotion by ID
+ *     tags: [Promotions]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Promotion ID
+ *     responses:
+ *       200:
+ *         description: Promotion details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Promotion'
+ *       404:
+ *         description: Promotion not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /promotions/{id}:
+ *   put:
+ *     summary: Update promotion (Admin)
+ *     tags: [Promotions]
+ *     security:
+ *       - bearerAuth: []
+ *     consumes:
+ *       - multipart/form-data
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Promotion ID
+ *       - in: formData
+ *         name: image
+ *         type: file
+ *         description: New promotion image
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               discountType:
+ *                 type: string
+ *               discountValue:
+ *                 type: number
+ *               minOrderAmount:
+ *                 type: number
+ *               maxDiscountAmount:
+ *                 type: number
+ *               startDate:
+ *                 type: string
+ *               endDate:
+ *                 type: string
+ *               isActive:
+ *                 type: boolean
+ *               code:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Updated promotion
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Promotion'
+ *       400:
+ *         description: Invalid request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Promotion not found
+ */
+
+/**
+ * @swagger
+ * /promotions/{id}/toggle-status:
+ *   patch:
+ *     summary: Toggle promotion status (Admin)
+ *     tags: [Promotions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Promotion ID
+ *     responses:
+ *       200:
+ *         description: Promotion status toggled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Promotion'
+ *       400:
+ *         description: Invalid request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Promotion not found
+ */
+
+/**
+ * @swagger
+ * /promotions/{id}/items/{itemId}:
+ *   post:
+ *     summary: Add item to promotion (Admin)
+ *     tags: [Promotions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Promotion ID
+ *       - in: path
+ *         name: itemId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Item ID to add
+ *     responses:
+ *       201:
+ *         description: Item added to promotion
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PromotionItem'
+ *       400:
+ *         description: Invalid request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Promotion or item not found
+ */
+
+/**
+ * @swagger
+ * /promotions/{id}/items/{itemId}:
+ *   delete:
+ *     summary: Remove item from promotion (Admin)
+ *     tags: [Promotions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Promotion ID
+ *       - in: path
+ *         name: itemId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Item ID to remove
+ *     responses:
+ *       200:
+ *         description: Item removed from promotion
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Item removed from promotion
+ *       400:
+ *         description: Invalid request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Promotion or item not found
  */

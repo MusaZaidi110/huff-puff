@@ -1,175 +1,367 @@
 /**
  * @swagger
+ * tags:
+ *   name: Orders
+ *   description: Order management system
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     Order:
  *       type: object
- *       description: Represents a customer order with details including payment, status, and promotions.
  *       required:
- *         - id
- *         - order_type
- *         - subtotal
- *         - tax
- *         - total_amount
  *         - customer_id
+ *         - branch_id
+ *         - items
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *           description: Unique identifier for the order (UUIDv4).
- *           example: "550e8400-e29b-41d4-a716-446655440000"
- *         order_type:
- *           type: string
- *           enum:
- *             - delivery
- *             - pickup
- *           description: Type of order (delivery or pickup).
- *           example: "delivery"
- *         status:
- *           type: string
- *           enum:
- *             - pending
- *             - preparing
- *             - ready
- *             - out_for_delivery
- *             - delivered
- *             - cancelled
- *           description: Current status of the order.
- *           default: "pending"
- *           example: "preparing"
- *         subtotal:
- *           type: string
- *           format: decimal
- *           description: Subtotal amount before tax, delivery fee, and discounts.
- *           example: "50.00"
- *         tax:
- *           type: string
- *           format: decimal
- *           description: Tax amount applied to the order.
- *           example: "5.00"
- *         delivery_fee:
- *           type: string
- *           format: decimal
- *           description: Delivery fee charged for the order.
- *           default: "0.00"
- *           example: "3.50"
- *         discount_amount:
- *           type: string
- *           format: decimal
- *           description: Total discount applied to the order.
- *           default: "0.00"
- *           example: "10.00"
- *         total_amount:
- *           type: string
- *           format: decimal
- *           description: Final total amount after tax, delivery fee, and discounts.
- *           example: "48.50"
- *         estimated_delivery_time:
- *           type: string
- *           format: date-time
- *           nullable: true
- *           description: Estimated delivery time for the order.
- *           example: "2025-05-29T18:30:00Z"
- *         order_notes:
- *           type: string
- *           nullable: true
- *           description: Additional notes provided by the customer.
- *           example: "Please ring the doorbell twice."
- *         payment_method:
- *           type: string
- *           enum:
- *             - stripe
- *             - google_pay
- *             - apple_pay
- *           nullable: true
- *           description: Payment method used for the order.
- *           example: "stripe"
- *         payment_status:
- *           type: string
- *           enum:
- *             - pending
- *             - completed
- *             - failed
- *             - refunded
- *           description: Status of the payment.
- *           default: "pending"
- *           example: "completed"
- *         promotionId:
- *           type: string
- *           format: uuid
- *           nullable: true
- *           description: UUID of the applied promotion.
- *           example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
- *         promoCodeUsed:
- *           type: string
- *           nullable: true
- *           description: Promotional code applied by the customer.
- *           example: "SPRINGSALE20"
- *         promotionDiscount:
- *           type: string
- *           format: decimal
- *           nullable: true
- *           description: Discount amount from the applied promotion.
- *           example: "5.00"
- *         loyalty_points_earned:
- *           type: integer
- *           description: Number of loyalty points earned from this order.
- *           default: 0
- *           example: 10
- *         loyalty_points_redeemed:
- *           type: integer
- *           description: Number of loyalty points redeemed on this order.
- *           default: 0
- *           example: 5
+ *           description: Auto-generated order ID
  *         customer_id:
  *           type: string
  *           format: uuid
- *           description: UUID of the customer who placed the order.
- *           example: "b123f1ee-6c54-4b01-90e6-d701748f5678"
- *         pickup_time:
+ *         branch_id:
  *           type: string
- *           format: date-time
- *           nullable: true
- *           description: Scheduled pickup time for the order.
- *           example: "2025-05-30T12:00:00Z"
- *         delivery_started_at:
+ *           format: uuid
+ *         status:
  *           type: string
- *           format: date-time
- *           nullable: true
- *           description: Timestamp when the delivery started.
- *           example: "2025-05-29T18:00:00Z"
- *         delivered_at:
+ *           enum: [pending, accepted, preparing, ready, out_for_delivery, delivered, cancelled]
+ *           default: pending
+ *         subtotal:
+ *           type: number
+ *           format: float
+ *         tax:
+ *           type: number
+ *           format: float
+ *         delivery_fee:
+ *           type: number
+ *           format: float
+ *         discount_amount:
+ *           type: number
+ *           format: float
+ *         total_amount:
+ *           type: number
+ *           format: float
+ *         delivery_address:
  *           type: string
- *           format: date-time
- *           nullable: true
- *           description: Timestamp when the order was delivered.
- *           example: "2025-05-29T18:45:00Z"
- *         special_delivery_instructions:
+ *         special_instructions:
  *           type: string
- *           nullable: true
- *           description: Special instructions for delivery personnel.
- *           example: "Leave the package at the back door."
+ *         items:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/OrderItem'
+ *         statusHistory:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/OrderStatusHistory'
+ *       example:
+ *         id: d5fE_asz
+ *         customer_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *         branch_id: 3fa85f64-5717-4562-b3fc-2c963f66afa7
+ *         status: pending
+ *         subtotal: 25.99
+ *         tax: 2.60
+ *         delivery_fee: 3.99
+ *         total_amount: 32.58
+ *         delivery_address: "123 Main St, City"
+ * 
+ *     OrderItem:
+ *       type: object
+ *       required:
+ *         - item_id
+ *         - quantity
+ *         - unit_price
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         item_id:
+ *           type: string
+ *           format: uuid
+ *         quantity:
+ *           type: integer
+ *         unit_price:
+ *           type: number
+ *           format: float
+ *         special_instructions:
+ *           type: string
+ *         addons:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/OrderAddon'
+ * 
+ *     OrderAddon:
+ *       type: object
+ *       properties:
+ *         addon_id:
+ *           type: string
+ *           format: uuid
+ *         quantity:
+ *           type: integer
+ *         unit_price:
+ *           type: number
+ *           format: float
+ * 
+ *     OrderStatusHistory:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         status:
+ *           type: string
+ *         staff_id:
+ *           type: string
+ *           format: uuid
+ *         notes:
+ *           type: string
  *         created_at:
  *           type: string
  *           format: date-time
- *           readOnly: true
- *           description: Timestamp when the order was created.
- *           example: "2025-05-29T17:45:00Z"
- *         updated_at:
+ * 
+ *     StatusUpdate:
+ *       type: object
+ *       required:
+ *         - status
+ *       properties:
+ *         status:
+ *           type: string
+ *           enum: [accepted, preparing, ready, out_for_delivery, delivered]
+ *         notes:
+ *           type: string
+ * 
+ *     CancelRequest:
+ *       type: object
+ *       required:
+ *         - reason
+ *       properties:
+ *         reason:
+ *           type: string
+ * 
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ */
+
+/**
+ * @swagger
+ * /order:
+ *   post:
+ *     summary: Create a new order
+ *     tags: [Orders]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Order'
+ *     responses:
+ *       201:
+ *         description: Order created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /order/{id}:
+ *   get:
+ *     summary: Get order by ID
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Order ID
+ *       - in: query
+ *         name: includeCustomer
+ *         schema:
+ *           type: boolean
+ *         description: Include customer details
+ *     responses:
+ *       200:
+ *         description: Order details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Order'
+ *       404:
+ *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /order:
+ *   get:
+ *     summary: Get orders with filters
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: query
+ *         name: customerId
+ *         schema:
+ *           type: string
+ *         description: Filter by customer ID
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, accepted, preparing, ready, out_for_delivery, delivered, cancelled]
+ *         description: Filter by order status
+ *       - in: query
+ *         name: branchId
+ *         schema:
+ *           type: string
+ *         description: Filter by branch ID
+ *       - in: query
+ *         name: fromDate
+ *         schema:
  *           type: string
  *           format: date-time
- *           readOnly: true
- *           description: Timestamp when the order was last updated.
- *           example: "2025-05-29T18:10:00Z"
- * 
- *   parameters:
- *     orderId:
- *       in: path
- *       name: id
+ *         description: Filter orders created after this date
+ *       - in: query
+ *         name: toDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Filter orders created before this date
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
+ *         description: Pagination limit
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: Pagination offset
+ *     responses:
+ *       200:
+ *         description: List of orders
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Order'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /order/{id}/status:
+ *   put:
+ *     summary: Update order status
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Order ID
+ *     requestBody:
  *       required: true
- *       schema:
- *         type: string
- *         format: uuid
- *       description: UUID of the order.
- *       example: "550e8400-e29b-41d4-a716-446655440000"
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/StatusUpdate'
+ *     responses:
+ *       200:
+ *         description: Order status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Invalid status transition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Order not found
+ */
+
+/**
+ * @swagger
+ * /order/{id}/cancel:
+ *   put:
+ *     summary: Cancel an order
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Order ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CancelRequest'
+ *     responses:
+ *       200:
+ *         description: Order cancelled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Cannot cancel order
+ *       404:
+ *         description: Order not found
+ */
+
+/**
+ * @swagger
+ * /order/{id}/recalculate:
+ *   post:
+ *     summary: Recalculate order totals
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Order ID
+ *     responses:
+ *       200:
+ *         description: Order with recalculated totals
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Error recalculating
+ *       404:
+ *         description: Order not found
  */

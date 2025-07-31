@@ -1,61 +1,216 @@
 /**
  * @swagger
+ * tags:
+ *   name: Item Variants
+ *   description: Management of item variants (sizes, colors, etc.)
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     ItemVariant:
  *       type: object
- *       description: Represents a variant or option for an item, such as size or flavor, with an optional price adjustment.
  *       required:
- *         - id
  *         - name
+ *         - price_modifier
+ *         - item_id
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *           description: Unique identifier for the item variant (UUIDv4).
- *           example: "550e8400-e29b-41d4-a716-446655440000"
- *         name:
- *           type: string
- *           description: Name of the variant (e.g., "Small", "Large", "Vanilla").
- *           example: "Large"
- *         price_adjustment:
- *           type: number
- *           format: double
- *           description: Price difference compared to the base item price. Can be positive or negative.
- *           default: 0
- *           example: 2.50
- *         is_active:
- *           type: boolean
- *           description: Indicates if the variant is currently active and available.
- *           default: true
- *           example: true
- *         created_at:
- *           type: string
- *           format: date-time
- *           readOnly: true
- *           description: Timestamp when the variant was created.
- *           example: "2023-01-01T12:00:00Z"
- *         updated_at:
- *           type: string
- *           format: date-time
- *           readOnly: true
- *           description: Timestamp when the variant was last updated.
- *           example: "2023-01-02T15:00:00Z"
+ *           description: The auto-generated ID
  *         item_id:
  *           type: string
  *           format: uuid
- *           nullable: true
- *           description: UUID of the item this variant belongs to.
- *           example: "a1234567-e29b-41d4-a716-446655440000"
+ *           description: ID of the parent item
+ *         name:
+ *           type: string
+ *           description: Variant name (e.g., "Large", "Red")
+ *         price_modifier:
+ *           type: number
+ *           format: float
+ *           description: Price adjustment from base item
+ *         description:
+ *           type: string
+ *           description: Optional variant description
+ *         is_active:
+ *           type: boolean
+ *           default: true
+ *       example:
+ *         id: d5fE_asz
+ *         item_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *         name: Large
+ *         price_modifier: 2.50
+ *         description: 16oz size
+ *         is_active: true
  * 
- *   parameters:
- *     itemVariantId:
- *       in: path
- *       name: id
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           description: Error message
+ */
+
+/**
+ * @swagger
+ * /item-variant/{itemId}/variants:
+ *   post:
+ *     summary: Create a new variant for an item
+ *     tags: [Item Variants]
+ *     parameters:
+ *       - in: path
+ *         name: itemId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the parent item
+ *     requestBody:
  *       required: true
- *       schema:
- *         type: string
- *         format: uuid
- *       description: UUID of the item variant.
- *       example: "550e8400-e29b-41d4-a716-446655440000"
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ItemVariant'
+ *     responses:
+ *       201:
+ *         description: Variant created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ItemVariant'
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /item-variant/{itemId}/variants:
+ *   get:
+ *     summary: Get all variants for an item
+ *     tags: [Item Variants]
+ *     parameters:
+ *       - in: path
+ *         name: itemId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the parent item
+ *     responses:
+ *       200:
+ *         description: List of variants
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ItemVariant'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /item-variant/variants/{id}:
+ *   get:
+ *     summary: Get a variant by ID
+ *     tags: [Item Variants]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Variant ID
+ *     responses:
+ *       200:
+ *         description: Variant data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ItemVariant'
+ *       404:
+ *         description: Variant not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /item-variant/variants/{id}:
+ *   put:
+ *     summary: Update a variant
+ *     tags: [Item Variants]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Variant ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ItemVariant'
+ *     responses:
+ *       200:
+ *         description: Updated variant
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ItemVariant'
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Variant not found
+ */
+
+/**
+ * @swagger
+ * /item-variant/variants/{id}:
+ *   delete:
+ *     summary: Delete a variant
+ *     tags: [Item Variants]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Variant ID
+ *     responses:
+ *       200:
+ *         description: Variant deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Variant deleted successfully
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Variant not found
  */

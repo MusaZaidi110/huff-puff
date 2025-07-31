@@ -1,50 +1,216 @@
 /**
  * @swagger
+ * tags:
+ *   name: Order Addons
+ *   description: Management of addons for order items
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     OrderItemAddon:
  *       type: object
- *       description: Represents an addon associated with an order item, including quantity and price.
  *       required:
- *         - id
+ *         - order_item_id
+ *         - addon_id
+ *         - quantity
  *         - unit_price
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *           description: Unique identifier for the order item addon (UUIDv4).
- *           example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+ *           description: Auto-generated order addon ID
+ *         order_item_id:
+ *           type: string
+ *           format: uuid
+ *           description: Parent order item ID
+ *         addon_id:
+ *           type: string
+ *           format: uuid
+ *           description: Menu addon ID
  *         quantity:
  *           type: integer
- *           description: Quantity of the addon added to the order item.
- *           default: 1
- *           example: 2
+ *           minimum: 1
+ *           description: Addon quantity
  *         unit_price:
+ *           type: number
+ *           format: float
+ *           description: Price per unit at time of ordering
+ *         addon:
+ *           $ref: '#/components/schemas/ItemAddon'
+ *       example:
+ *         id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *         order_item_id: 3fa85f64-5717-4562-b3fc-2c963f66afa7
+ *         addon_id: 3fa85f64-5717-4562-b3fc-2c963f66afa8
+ *         quantity: 2
+ *         unit_price: 1.50
+
+ *     OrderItemAddonCreate:
+ *       type: object
+ *       required:
+ *         - addon_id
+ *         - quantity
+ *         - unit_price
+ *       properties:
+ *         addon_id:
  *           type: string
- *           format: decimal
- *           description: Price per unit of this addon.
- *           example: "3.50"
- *         created_at:
+ *           format: uuid
+ *         quantity:
+ *           type: integer
+ *           minimum: 1
+ *         unit_price:
+ *           type: number
+ *           format: float
+ *       example:
+ *         addon_id: 3fa85f64-5717-4562-b3fc-2c963f66afa8
+ *         quantity: 1
+ *         unit_price: 1.50
+
+ *     OrderItemAddonUpdate:
+ *       type: object
+ *       properties:
+ *         quantity:
+ *           type: integer
+ *           minimum: 1
+ *       example:
+ *         quantity: 3
+
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         error:
  *           type: string
- *           format: date-time
- *           description: Timestamp when the order item addon was created.
- *           readOnly: true
- *           example: "2025-05-29T13:00:00Z"
- *         updated_at:
+ */
+
+/**
+ * @swagger
+ * /order-addons/order-items/{orderItemId}/addons:
+ *   post:
+ *     summary: Add addon to order item
+ *     tags: [Order Addons]
+ *     parameters:
+ *       - in: path
+ *         name: orderItemId
+ *         schema:
  *           type: string
- *           format: date-time
- *           description: Timestamp when the order item addon was last updated.
- *           readOnly: true
- *           example: "2025-05-29T13:10:00Z"
- * 
- *   parameters:
- *     orderItemAddonId:
- *       in: path
- *       name: id
+ *         required: true
+ *         description: ID of the order item to add addon to
+ *     requestBody:
  *       required: true
- *       schema:
- *         type: string
- *         format: uuid
- *       description: UUID of the order item addon.
- *       example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/OrderItemAddonCreate'
+ *     responses:
+ *       201:
+ *         description: Addon added to order item
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrderItemAddon'
+ *       400:
+ *         description: Invalid request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /order-addons/addons/{id}:
+ *   get:
+ *     summary: Get order item addon details
+ *     tags: [Order Addons]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Order item addon ID
+ *     responses:
+ *       200:
+ *         description: Order item addon details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrderItemAddon'
+ *       404:
+ *         description: Order item addon not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /order-addons/addons/{id}:
+ *   put:
+ *     summary: Update order item addon
+ *     tags: [Order Addons]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Order item addon ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/OrderItemAddonUpdate'
+ *     responses:
+ *       200:
+ *         description: Updated order item addon
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrderItemAddon'
+ *       400:
+ *         description: Invalid update data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Order item addon not found
+ */
+
+/**
+ * @swagger
+ * /order-addons/addons/{id}:
+ *   delete:
+ *     summary: Remove addon from order item
+ *     tags: [Order Addons]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Order item addon ID
+ *     responses:
+ *       200:
+ *         description: Addon removed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order item addon removed successfully
+ *       400:
+ *         description: Cannot remove addon
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Order item addon not found
  */

@@ -1,71 +1,136 @@
 /**
  * @swagger
+ * tags:
+ *   name: Order Status History
+ *   description: Tracking of order status changes
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     OrderStatusHistory:
  *       type: object
- *       description: Represents the historical status changes of an order, tracking who updated the status and when.
  *       required:
- *         - id
+ *         - order_id
  *         - status
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *           description: Unique identifier for the order status history entry.
- *           example: "a1b2c3d4-e5f6-7890-ab12-3456789cdef0"
- *         
- *         status:
- *           type: string
- *           enum: [pending, accepted, preparing, ready, out_for_delivery, delivered, cancelled]
- *           description: The order status at a specific point in time.
- *           example: "out_for_delivery"
- *         
- *         notes:
- *           type: string
- *           description: Optional notes or reason for status change.
- *           example: "Order handed to delivery person"
- *         
+ *           description: Auto-generated history entry ID
  *         order_id:
  *           type: string
  *           format: uuid
- *           description: UUID of the associated order.
- *           example: "5d432a9e-b6a1-4cf4-92e2-c9b123456789"
- *         
+ *           description: Related order ID
+ *         status:
+ *           type: string
+ *           enum: [pending, accepted, preparing, ready, out_for_delivery, delivered, cancelled]
+ *           description: Order status at this point in history
  *         staff_id:
  *           type: string
  *           format: uuid
- *           description: UUID of the staff member who updated the status (if applicable).
- *           example: "3f2e4d5c-a2b1-4567-8123-a456def12345"
- *         
- *         delivery_person_id:
+ *           description: ID of staff member who changed status
+ *         notes:
  *           type: string
- *           format: uuid
- *           description: UUID of the delivery person who updated the status (if applicable).
- *           example: "9b123ef4-678c-4de1-a234-f456bcdef789"
- *         
+ *           description: Additional notes about the status change
  *         created_at:
  *           type: string
  *           format: date-time
- *           readOnly: true
- *           description: Timestamp when the status was recorded.
- *           example: "2025-05-30T08:30:00Z"
- *         
- *         updated_at:
+ *           description: When the status change occurred
+ *       example:
+ *         id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *         order_id: 3fa85f64-5717-4562-b3fc-2c963f66afa7
+ *         status: preparing
+ *         staff_id: 3fa85f64-5717-4562-b3fc-2c963f66afa8
+ *         notes: "Started food preparation"
+ *         created_at: "2023-01-01T12:00:00Z"
+
+ *     StatusHistoryCreate:
+ *       type: object
+ *       required:
+ *         - status
+ *       properties:
+ *         status:
  *           type: string
- *           format: date-time
- *           readOnly: true
- *           description: Timestamp of the last update.
- *           example: "2025-05-30T08:45:00Z"
- * 
- *   parameters:
- *     orderStatusHistoryId:
- *       in: path
- *       name: id
+ *           enum: [pending, accepted, preparing, ready, out_for_delivery, delivered, cancelled]
+ *         staff_id:
+ *           type: string
+ *           format: uuid
+ *         notes:
+ *           type: string
+ *       example:
+ *         status: preparing
+ *         staff_id: 3fa85f64-5717-4562-b3fc-2c963f66afa8
+ *         notes: "Started food preparation"
+
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ */
+
+/**
+ * @swagger
+ * /order-status-history/{orderId}/history:
+ *   get:
+ *     summary: Get status history for an order
+ *     tags: [Order Status History]
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the order to get history for
+ *     responses:
+ *       200:
+ *         description: List of status history entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/OrderStatusHistory'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /order-status-history/{orderId}/history:
+ *   post:
+ *     summary: Add status entry to order history
+ *     tags: [Order Status History]
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the order to add history to
+ *     requestBody:
  *       required: true
- *       schema:
- *         type: string
- *         format: uuid
- *       description: UUID of the order status history record.
- *       example: "a1b2c3d4-e5f6-7890-ab12-3456789cdef0"
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/StatusHistoryCreate'
+ *     responses:
+ *       201:
+ *         description: Status history entry created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrderStatusHistory'
+ *       400:
+ *         description: Invalid request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
