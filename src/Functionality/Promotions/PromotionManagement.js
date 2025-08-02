@@ -1,5 +1,4 @@
 const { uploadImages, deleteImage } = require("../../Utils/FileUpload");
-const { Promotion, PromotionItem, Item } = require("../models");
 const Promotion = require("../../Models/PromotionManagement/Promotion.Model");
 const PromotionItem = require("../../Models/PromotionManagement/PromotionItem.Model");
 const Item = require("../../Models/MenuManagement/Item.Model");
